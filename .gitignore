@@ -1,4 +1,13 @@
+# sbt:
 project/project/
 project/target/
 target/
+
+# chisel:
 test_run_dir/
+
+# quartus:
+quartus/*.qpf
+quartus/db/
+quartus/incremental_db/
+quartus/output_files/
