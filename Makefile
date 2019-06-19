@@ -2,10 +2,11 @@ test:
 	@sbt 'testOnly'
 
 program:
+	@sbt 'runMain yrv.Yrv'
 	@quartus_map quartus/yrv
 	@quartus_fit quartus/yrv
 	@quartus_asm quartus/yrv
-	@quartus_pgm -z --mode=JTAG --operation="p;quartus/yrv/output_files/yrv.sof"
+	@quartus_pgm -z --mode=JTAG --operation="p;quartus/output_files/yrv.sof"
 
 clean:
 	@-rm -rf project/project/

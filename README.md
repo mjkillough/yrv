@@ -3,5 +3,5 @@
 ## Tests
 
 ```
-sbt 'testOnly gcd.GCDTester -- -z Basic'
+sbt 'testOnly'
 ```

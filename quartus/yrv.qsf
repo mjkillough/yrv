@@ -18,7 +18,7 @@ set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 
 set_global_assignment -name SOURCE_FILE ../verilog/top.sv
-set_global_assignment -name SOURCE_FILE ../GCD.v
+set_global_assignment -name SOURCE_FILE ../Yrv.v
 
 set_location_assignment PIN_N25 -to SW[0]
 set_location_assignment PIN_N26 -to SW[1]
