@@ -23,12 +23,15 @@ class Yrv extends Module {
   io.hex1 := 0.U
   io.uart.tx := 0.U
 
+  val button = RegInit(false.B)
+  val triggered = io.sw3 && !button
+  button := io.sw3
+
   val uartTx = Module(new UartTransmitter(5208))
-  uartTx.io.write := io.sw3
+  uartTx.io.write := triggered
   uartTx.io.data := io.sw2
   io.uart.tx := uartTx.io.tx
   io.led := uartTx.io.busy
-
 }
 
 object Yrv extends App {
