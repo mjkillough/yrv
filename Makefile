@@ -1,11 +1,15 @@
 test:
 	@sbt 'testOnly'
 
-program:
-	@sbt 'runMain yrv.Yrv'
+compile:
+	@sbt 'runMain yrv.Yrv --target-dir verilog/generated'
+
+assemble: compile
 	@quartus_map quartus/yrv
 	@quartus_fit quartus/yrv
 	@quartus_asm quartus/yrv
+
+program: assemble
 	@quartus_pgm -z --mode=JTAG --operation="p;quartus/output_files/yrv.sof"
 
 clean:

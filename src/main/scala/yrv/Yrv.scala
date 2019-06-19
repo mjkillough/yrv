@@ -13,6 +13,8 @@ class Yrv extends Module {
   val seg1 = Module(new SegmentDisplay)
   seg1.io.num := io.sw
   io.hex0 := seg1.io.hex
+
+  io.hex1 := 0.U
 }
 
 object Yrv extends App {
