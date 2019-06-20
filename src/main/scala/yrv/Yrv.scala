@@ -3,7 +3,8 @@ package yrv
 import chisel3._
 import chisel3.util._
 
-import yrv.uart._
+import yrv.io.uart._
+import yrv.io.segment._
 
 class Yrv extends Module {
   val io = IO(new Bundle {

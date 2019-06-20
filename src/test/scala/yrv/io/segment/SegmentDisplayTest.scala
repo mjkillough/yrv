@@ -1,4 +1,4 @@
-package yrv
+package yrv.io.segment
 
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}

@@ -1,4 +1,4 @@
-package yrv.uart
+package yrv.io.uart
 
 import chisel3._
 import chisel3.util._

@@ -1,4 +1,4 @@
-package yrv.uart
+package yrv.io.uart
 
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}

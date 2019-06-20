@@ -1,4 +1,4 @@
-package yrv.uart
+package yrv.io.uart
 
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
@@ -13,6 +13,8 @@ class UartReceiverTests(c: UartReceiver) extends PeekPokeTester(c) {
   private val uart = c
 
   val data = Integer.parseInt("01110101", 2)
+
+  poke(uart.io.clear, false)
 
   // Holding io.rx high shouldn't start state machine.
   poke(uart.io.rx, 1)
