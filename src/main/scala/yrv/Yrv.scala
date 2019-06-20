@@ -18,12 +18,8 @@ class Yrv extends Module {
 
   io.hexes := MultiSegmentDisplay(io.data)
 
-  val last = RegInit(false.B)
-  val triggered = io.button && !last
-  last := io.button
-
   val uartTx = Module(new UartTransmitter(5208))
-  uartTx.io.write := triggered
+  uartTx.io.write := Pulse(io.button)
   uartTx.io.data := io.data(7, 0)
   io.uart.tx := uartTx.io.tx
   io.led := uartTx.io.busy
