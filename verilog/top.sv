@@ -4,6 +4,8 @@ module yrv_top(
 	input  [3:0] KEY,
 	output [17:0] LEDR,
 	output [6:0] HEX0, HEX1,
+
+	input UART_RXD,
 	output UART_TXD
 	);
 
@@ -11,12 +13,15 @@ module yrv_top(
 
 	Yrv yrv(
 		.clock(CLOCK_50),
-		.reset(SW[13]),
-		.io_hex0(HEX1),
-		.io_sw(SW[3:0]),
-		.io_sw2(SW[11:4]),
-		.io_sw3(!KEY[0]),
+		.reset(!KEY[0]),
+
+		.io_hex0(HEX0),
+		.io_hex1(HEX1),
+
+		.io_uart_tx(UART_TXD),
+		.io_uart_rx(UART_RXD),
 		.io_led(LEDR[0]),
-		.io_uart_tx(UART_TXD)
+		.io_button(!KEY[1]),
+		.io_data(SW[7:0])
 	);
 endmodule

@@ -7,29 +7,30 @@ import yrv.uart._
 
 class Yrv extends Module {
   val io = IO(new Bundle {
-    val sw = Input(UInt(4.W))
-    val sw2 = Input(UInt(8.W))
-    val sw3 = Input(Bool())
-    val uart = new UartIo
     val hex0 = Output(UInt(7.W))
     val hex1 = Output(UInt(7.W))
+
+    val uart = new UartIo
     val led = Output(Bool())
+    val button = Input(Bool())
+    val data = Input(UInt(8.W))
+
   })
 
   val seg1 = Module(new SegmentDisplay)
-  seg1.io.num := io.sw
+  seg1.io.num := io.data(3, 0)
   io.hex0 := seg1.io.hex
+  val seg2 = Module(new SegmentDisplay)
+  seg2.io.num := io.data(7, 4)
+  io.hex1 := seg2.io.hex
 
-  io.hex1 := 0.U
-  io.uart.tx := 0.U
-
-  val button = RegInit(false.B)
-  val triggered = io.sw3 && !button
-  button := io.sw3
+  val last = RegInit(false.B)
+  val triggered = io.button && !last
+  last := io.button
 
   val uartTx = Module(new UartTransmitter(5208))
   uartTx.io.write := triggered
-  uartTx.io.data := io.sw2
+  uartTx.io.data := io.data
   io.uart.tx := uartTx.io.tx
   io.led := uartTx.io.busy
 }

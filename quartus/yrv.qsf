@@ -21,7 +21,7 @@ set_global_assignment -name SOURCE_FILE ../verilog/top.sv
 set_global_assignment -name SOURCE_FILE ../verilog/generated/Yrv.v
 
 
-#set_location_assignment PIN_C25 -to UART_RXD
+set_location_assignment PIN_C25 -to UART_RXD
 set_location_assignment PIN_B25 -to UART_TXD
 
 set_location_assignment PIN_N25 -to SW[0]
@@ -58,13 +58,6 @@ set_location_assignment PIN_Y22 -to HEX1[3]
 set_location_assignment PIN_AA24 -to HEX1[4]
 set_location_assignment PIN_AA23 -to HEX1[5]
 set_location_assignment PIN_AB24 -to HEX1[6]
-set_location_assignment PIN_AB23 -to HEX2[0]
-set_location_assignment PIN_V22 -to HEX2[1]
-set_location_assignment PIN_AC25 -to HEX2[2]
-set_location_assignment PIN_AC26 -to HEX2[3]
-set_location_assignment PIN_AB26 -to HEX2[4]
-set_location_assignment PIN_AB25 -to HEX2[5]
-set_location_assignment PIN_Y24 -to HEX2[6]
 
 set_location_assignment PIN_G26 -to KEY[0]
 set_location_assignment PIN_N23 -to KEY[1]
@@ -100,6 +93,13 @@ set_location_assignment PIN_N2 -to CLOCK_50
 # set_location_assignment PIN_AA20 -to LEDG[6]
 # set_location_assignment PIN_Y18 -to LEDG[7]
 # set_location_assignment PIN_Y12 -to LEDG[8]
+# set_location_assignment PIN_AB23 -to HEX2[0]
+# set_location_assignment PIN_V22 -to HEX2[1]
+# set_location_assignment PIN_AC25 -to HEX2[2]
+# set_location_assignment PIN_AC26 -to HEX2[3]
+# set_location_assignment PIN_AB26 -to HEX2[4]
+# set_location_assignment PIN_AB25 -to HEX2[5]
+# set_location_assignment PIN_Y24 -to HEX2[6]
 # set_location_assignment PIN_Y23 -to HEX3[0]
 # set_location_assignment PIN_AA25 -to HEX3[1]
 # set_location_assignment PIN_AA26 -to HEX3[2]
