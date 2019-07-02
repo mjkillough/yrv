@@ -9,9 +9,9 @@ class Pulse extends Module {
         val out = Output(Bool())
     })
 
-    val r1 = RegNext(io.in)
-    val r2 = RegNext(r1)
-    val r3 = RegNext(r2)
+    val r1 = RegNext(io.in, false.B)
+    val r2 = RegNext(r1, false.B)
+    val r3 = RegNext(r2, false.B)
 
     io.out := r2 && !r3
 }
