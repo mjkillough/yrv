@@ -21,6 +21,8 @@ class DecodeOut extends Bundle {
 }
 
 class Decode extends Module {
+  import Decode._
+
   val io = IO(new Bundle {
     val regs = Flipped(new RegFileReadIo)
 
@@ -38,7 +40,7 @@ class Decode extends Module {
   val rs2 = instr(24, 20)
   val rd = instr(11, 7)
 
-  val useImm = true.B
+  val useImm = opcode === OPCODE_OP_IMM
 
   val rType :: iType :: sType :: bType :: uType :: jType :: nil = Enum(6)
   val ty = iType
@@ -60,4 +62,9 @@ class Decode extends Module {
   io.control.execute.func := func
   io.control.commit.write := true.B
   io.control.commit.rd := rd
+}
+
+object Decode {
+  val OPCODE_OP_IMM = "b0010011".U
+  val OPCODE_OP     = "b0110011".U
 }
