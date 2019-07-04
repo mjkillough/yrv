@@ -10,6 +10,7 @@ object Alu {
   val FUNC_AND  = "b0111".asUInt(4.W)
   val FUNC_OR   = "b0110".asUInt(4.W)
   val FUNC_XOR  = "b0100".asUInt(4.W)
+  val FUNC_SUB  = "b1000".asUInt(4.W)
 
   def boolToSInt(value: Bool): SInt = {
     // Add 0 in MSB to avoid sign-extending true.B
@@ -39,6 +40,9 @@ class Alu extends Module {
   switch (io.func) {
     is (FUNC_ADD) {
       sOut := sIn1 +& sIn2
+    }
+    is (FUNC_SUB) {
+      sOut := sIn1 -& sIn2
     }
     is (FUNC_SLT) {
       sOut := boolToSInt(sIn1 < sIn2)

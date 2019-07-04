@@ -29,7 +29,7 @@ class DecodeOpImmTests(c: Decode) extends PeekPokeTester(c) {
 class DecodeOpTests(c: Decode) extends PeekPokeTester(c) {
   private val decode = c
 
-  val instr = InstrR(
+  val add = InstrR(
     funct7 = 0,
     rs1 = 1,
     rs2 = 2,
@@ -38,7 +38,7 @@ class DecodeOpTests(c: Decode) extends PeekPokeTester(c) {
     opcode = 0x33
   ).encode
 
-  poke(decode.io.in.instr, instr)
+  poke(decode.io.in.instr, add)
   poke(decode.io.regs.val1, 2)
   poke(decode.io.regs.val2, 3)
 
@@ -47,6 +47,26 @@ class DecodeOpTests(c: Decode) extends PeekPokeTester(c) {
   expect(decode.io.out.val1, 2) // rs1, x1
   expect(decode.io.out.val2, 3) // rs2, x2
   expect(decode.io.control.execute.func, 0x6) // funct3
+  expect(decode.io.control.commit.rd, 3) // x3
+
+  val sub = InstrR(
+    funct7 = 0x20,
+    rs1 = 1,
+    rs2 = 2,
+    funct3 = 0,
+    rd = 3,
+    opcode = 0x33
+  ).encode
+
+  poke(decode.io.in.instr, sub)
+  poke(decode.io.regs.val1, 2)
+  poke(decode.io.regs.val2, 3)
+
+  expect(decode.io.regs.addr1, 1) // rs1, x1
+  expect(decode.io.regs.addr2, 2) // rs2, x2
+  expect(decode.io.out.val1, 2) // rs1, x1
+  expect(decode.io.out.val2, 3) // rs2, x2
+  expect(decode.io.control.execute.func, 0x8) // funct3
   expect(decode.io.control.commit.rd, 3) // x3
 }
 

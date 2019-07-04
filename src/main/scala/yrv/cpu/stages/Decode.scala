@@ -21,8 +21,6 @@ class DecodeOut extends Bundle {
 }
 
 class Decode extends Module {
-  import Decode._
-
   val io = IO(new Bundle {
     val regs = Flipped(new RegFileReadIo)
 
@@ -34,13 +32,15 @@ class Decode extends Module {
   val instr = io.in.instr
 
   val opcode = instr(6, 0)
-  val func = instr(14, 12)
+  val funct3 = instr(14, 12)
+  val funct7 = instr(31, 25)
 
   val rs1 = instr(19, 15)
   val rs2 = instr(24, 20)
   val rd = instr(11, 7)
 
-  val useImm = opcode === OPCODE_OP_IMM
+  val useImm = opcode === Opcode.OpImm
+  val useFunct7 = opcode === Opcode.Op
 
   val rType :: iType :: sType :: bType :: uType :: jType :: nil = Enum(6)
   val ty = iType
@@ -54,6 +54,8 @@ class Decode extends Module {
     }
   }
 
+  val func = Mux(useFunct7, Cat(funct7(5), funct3), funct3)
+
   io.regs.addr1 := rs1
   io.regs.addr2 := rs2
   io.out.val1 := io.regs.val1
@@ -64,7 +66,7 @@ class Decode extends Module {
   io.control.commit.rd := rd
 }
 
-object Decode {
-  val OPCODE_OP_IMM = "b0010011".U
-  val OPCODE_OP     = "b0110011".U
+object Opcode {
+  val OpImm = "b0010011".U
+  val Op    = "b0110011".U
 }

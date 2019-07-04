@@ -12,14 +12,16 @@ class AluTests(c: Alu) extends PeekPokeTester(c) {
 
   val FUNC_ADD = 0x0
   val FUNC_SLT = 0x2
+  val FUNC_SUB = 0x8
 
   val tests = Seq(
     Case(FUNC_ADD, in1 = 1, in2 = 3, out = 4),
     Case(FUNC_ADD, in1 = Int.MaxValue, in2 = 1, out = Int.MaxValue + 1),
 
     Case(FUNC_SLT, in1 = 1, in2 = 2, out = 1),
-    Case(FUNC_SLT, in1 = 2, in2 = 1, out = 0)
+    Case(FUNC_SLT, in1 = 2, in2 = 1, out = 0),
 
+    Case(FUNC_SUB, in1 = 3, in2 = 1, out = 2)
     // TODO
   )
 
