@@ -59,16 +59,19 @@ $(BUILD)verilated/V%_ALL.a: $(BUILD)verilated/V%.mk
 
 TEST_SRCS := $(wildcard $(TEST_SRC)*.cpp) $(wildcard $(TEST_SRC)**/*.cpp)
 TEST_OBJECTS := $(patsubst $(TEST_SRC)%.cpp,$(BUILD)tests/%.o,$(TEST_SRCS))
+TEST_DEPS := $(TEST_OBJECTS:.o=.d)
+
+-include $(TEST_DEPS)
 
 test: $(TEST_TARGET)
-	@$(TEST_TARGET)
+	@$(TEST_TARGET) $(PATTERN)
 
 $(TEST_TARGET): $(VERILATED_LIBS) $(TEST_OBJECTS) $(VERILATOR_OBJECTS) $(BIN)
 	@$(CXX) -o $(TEST_TARGET) $(TEST_OBJECTS) $(VERILATOR_OBJECTS) $(VERILATED_LIB_FLAGS) -L$(BUILD)verilated
 
 $(BUILD)tests/%.o: $(TEST_SRC)%.cpp $(BUILD)
 	@mkdir -p $(BUILD)$(<D)
-	@$(CXX) $(CFLAGS) -I$(TEST_SRC) -I$(BUILD)verilated -I/usr/share/verilator/include -c $< -o $@
+	@$(CXX) $(CFLAGS) -I$(TEST_SRC) -I$(BUILD)verilated -I/usr/share/verilator/include -MMD -c $< -o $@
 
 $(BUILD):
 	@mkdir -p $@tests

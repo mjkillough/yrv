@@ -9,33 +9,33 @@
 
 #include "Vuart_rx.h"
 
-class UartRxTb: public Testbench<Vuart_rx> {};
-
 TEST_CASE("uart_rx") {
-	UartRxTb tb;
-    tb.trace("test.vcd");
+	Testbench<Vuart_rx> tb;
+
+    // This is the default given CLOCK_HZ=10, BAUD_RATE=1:
+    auto clocks_per_baud = 10;
 
     auto assert_not_ready = [&]() { REQUIRE(tb.module->ready == 0); };
 
-    auto transmit = [&](uint8_t byte) {
-        INFO("transmit(" << +byte << ", start bit)");
+    auto receive = [&](auto byte) {
+        INFO("receive(" << +byte << ", start bit)");
         tb.module->rx = 0;
-        tb.tick_while(434, assert_not_ready);
+        tb.tick_while(clocks_per_baud, assert_not_ready);
 
         for (uint8_t bit = 0; bit < 8; bit++) {
-            INFO("transmit(" << +byte << ", bit " << +bit <<")");
+            INFO("receive(" << +byte << ", bit " << +bit <<")");
 
             tb.module->rx = (byte & (1 << bit)) >> bit;
-            tb.tick_while(433, assert_not_ready);
+            tb.tick_while(clocks_per_baud, assert_not_ready);
         }
-
-        INFO("transmit(" << +byte << ", stop bit)");
         tb.module->rx = 1;
+
+        INFO("receive(" << +byte << ", stop bit)");
         // Should be ready for one cycle during the stop bit, with the data
         // available for reading.
         auto ready = false;
         auto data = std::optional<uint8_t>{};
-        for (size_t i = 0; i < 434; i++) {
+        for (size_t i = 0; i < clocks_per_baud; i++) {
             if (tb.module->ready == 1) {
                 REQUIRE(!ready);
                 ready = true;
@@ -49,19 +49,20 @@ TEST_CASE("uart_rx") {
     };
 
     // Hold rx high an arbitrary amount of time.
-    auto random_high = GENERATE(0, take(1, random(0, 200 * 434)));
+    auto random_high = GENERATE(0, take(1, random(0, 50)));
     INFO("holding high " << +random_high << " cycles");
     tb.module->rx = 1;
-    tb.tick_while(1000, assert_not_ready);
+    tb.reset();
+    tb.tick_while(random_high, assert_not_ready);
 
     SECTION("one byte") {
-        transmit(105);
+        receive(105);
     }
 
     SECTION("multiple bytes") {
         for (auto i = 0; i < 256; i++) {
-            INFO("transmitting " << +i << "th byte");
-            transmit(static_cast<uint8_t>(i));
+            INFO("receiving " << +i << "th byte");
+            receive(i);
         }
     }
 

@@ -1,14 +1,14 @@
-module uart_rx(
+module uart_rx#(
+  parameter CLOCK_HZ = 10,
+  parameter BAUD_RATE = 1
+)(
+  input resetn,
   input clk,
   input rx,
 
   output reg ready,
   output reg [7:0] data
 );
-
-  // Clock Rate Hz / Baud Rate
-  // 50 MHz / 115200 = 434
-  parameter CLOCKS_PER_BAUD = 10'd434;
 
   enum reg [1:0] {
     // Waiting for start bit.
@@ -22,8 +22,6 @@ module uart_rx(
     STATE_STOP
   } state;
 
-  // Count down from CLOCKS_PER_BAUD, reading value whenever this is 0.
-  reg [9:0] clock_count = 0;
   // The bit that's currently being received.
   reg [2:0] bit_count = 0;
 
@@ -33,49 +31,53 @@ module uart_rx(
   // which will ensure we read the middle of each bit. Finally wait for the
   // stop bit to be received.
 
-  always_ff @(posedge clk) begin
-    case (state)
+  wire tick, half;
+  assign half = (state == STATE_IDLE && rx == 1'b0);
+  uart_baud#(
+    .CLOCK_HZ(CLOCK_HZ),
+    .BAUD_RATE(BAUD_RATE)
+  ) baud(
+    .resetn(resetn),
+    .clk(clk),
+    .half(half),
+    .tick(tick)
+  );
+
+  always_ff @(posedge clk, negedge resetn) begin
+    if (!resetn) state <= STATE_IDLE;
+    else case (state)
       STATE_IDLE: begin
         ready <= 1'b0;
-        clock_count <= CLOCKS_PER_BAUD / 10'd2;
-        if (rx == 1'b0) state <= STATE_START;
+
+        if (rx == 1'b0)
+          state <= STATE_START;
       end
 
       STATE_START: begin
-        if (clock_count > 0) begin
-          clock_count <= clock_count - 1'b1;
-        end else begin
+        if (tick) begin
           // If the start bit is still 0, start counting for data.
           // Otherwise, give up.
-          if (rx == 1'b0) begin
+          if (rx == 1'b0)
             state <= STATE_DATA;
-            clock_count <= CLOCKS_PER_BAUD;
-          end else begin
+          else
             state <= STATE_IDLE;
-          end
         end
       end
 
       STATE_DATA: begin
-        if (clock_count > 0) begin
-          clock_count <= clock_count - 1'b1;
-        end else begin
+        if (tick) begin
           data[bit_count] <= rx;
-          clock_count <= CLOCKS_PER_BAUD;
 
-          if (bit_count < 7) begin
+          if (bit_count < 7)
             bit_count <= bit_count + 1'b1;
-          end else begin
-            bit_count <= 0;
+          else
             state <= STATE_STOP;
-          end
         end
       end
 
       STATE_STOP: begin
-        if (clock_count > 0) begin
-          clock_count <= clock_count - 1'b1;
-        end else begin
+        if (tick) begin
+          bit_count <= 0;
           ready <= 1'b1;
           state <= STATE_IDLE;
         end

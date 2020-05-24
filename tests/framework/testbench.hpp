@@ -25,30 +25,49 @@ public:
     template<typename F>
     void tick_while(size_t num, F assertion) {
         for (size_t i = 0; i < num; i++) {
+            INFO("tick(" << +i << +")");
             tick_count++;
 
-            INFO("tick(" << +i << +")");
-
+            // Allow all combinatorial logic to settle before clocking.
             module->clk = 0;
             module->eval();
-            dump();
-            assertion();
+            dump(10 * tick_count - 2);
+
             module->clk = 1;
             module->eval();
-            dump();
+            dump(10 * tick_count);
+            
+            tick_count++;
+            module->clk = 0;
+            module->eval();
+            dump(10 * tick_count + 5);
+
             assertion();
         }
     }
 
+    void reset() {
+        // Reset on negative edge of resetn:
+        module->resetn = 1;
+        module->eval();
+        module->resetn = 0;
+        module->eval();
+        dump(10 * tick_count - 3);
+
+        module->resetn = 1;
+    }
+
     virtual void finish() {
-        vcd->close();
+        if (vcd) {
+            vcd->close();
+        }
     }
 
 protected:
     std::unique_ptr<VerilatedVcdC> vcd;
     uint64_t tick_count{0};
 
-    void dump() {
+    void dump(uint64_t time) {
         if (vcd) {
             vcd->dump(tick_count);
         }

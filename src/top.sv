@@ -1,12 +1,8 @@
-`include "uart_rx.sv"
-`include "uart_tx.sv"
-`include "segment_display.sv"
-
 module top(
   input CLOCK_50,
-  /*input  [17:0] SW,*/
-  /*input  [3:0] KEY,*/
-  output /*[17:0]*/ [1:0] LEDR,
+  input  [17:0] SW,
+  input  /*[3:0]*/ KEY,
+  output /*[17:0]*/ [2:0] LEDR,
   output [6:0] HEX0, HEX1 /*, HEX2, HEX3*/,
 
   input UART_RXD,
@@ -14,9 +10,11 @@ module top(
 );
 
   reg [7:0] data = 0;
-  wire ready;
+  wire ready, resetn;
 
+  assign resetn = !SW;
   assign LEDR[0] = ready;
+  assign LEDR[2] = resetn;
 
   segment_display hex0(
     .num(data[3:0]),
@@ -27,18 +25,26 @@ module top(
     .hex(HEX1)
   );
 
-  uart_rx rx(
+  uart_rx#(
+    .CLOCK_HZ(15000000),
+    .BAUD_RATE(115200)
+  ) rx(
+    .resetn(resetn),
     .clk(CLOCK_50),
     .rx(UART_RXD),
     .ready(ready),
     .data(data)
   );
-  uart_tx tx(
-    .clk(CLOCK_50),
-    .tx(UART_TXD),
-    .write(ready),
-    .data(data),
-    .busy(LEDR[1])
-  );
+  // uart_tx#(
+  //   .CLOCK_HZ(15000000),
+  //   .BAUD_RATE(115200)
+  // ) tx(
+  //   .resetn(resetn),
+  //   .clk(CLOCK_50),
+  //   .tx(UART_TXD),
+  //   .write(ready),
+  //   .data(data),
+  //   .busy(LEDR[1])
+  // );
   
 endmodule
