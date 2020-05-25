@@ -18,6 +18,7 @@ program: assemble
 # ./Vuart_receiver
 # cd ..
 
+CXX = clang++
 CFLAGS = -std=c++17
 
 BUILD = build/
@@ -31,7 +32,7 @@ SRCS := $(wildcard $(SRC)*.sv) $(wildcard $(SRC)**/*.sv)
 # Compile VERILATOR_SRCS. These are two cpp files shipped with Verilator that
 # must be compiled and linked into the simulation.
 
-VERILATOR_INCLUDE = /usr/share/verilator/include/
+VERILATOR_INCLUDE = /usr/local/share/verilator/include/
 VERILATOR_RAW_SRCS = verilated.cpp verilated_vcd_c.cpp
 VERILATOR_SRCS := $(addprefix $(VERILATOR_INCLUDE)/,$(VERILATOR_RAW_SRCS))
 VERILATOR_OBJECTS := $(addprefix $(BUILD),$(subst .cpp,.o,$(VERILATOR_RAW_SRCS)))
@@ -50,8 +51,10 @@ verilate: $(VERILATED_LIBS) $(VERILATED_MK)
 
 $(BUILD)verilated/V%.mk: $(SRC)%.sv $(BUILD)
 	@verilator -Wall -Wno-VARHIDDEN --trace --Mdir $(BUILD)verilated -I$(SRC) --cc $< 
+	@echo "[V]    $<"
 
 $(BUILD)verilated/V%_ALL.a: $(BUILD)verilated/V%.mk
+	@echo "[MK]   $(<F)"
 	@$(MAKE) -s -C $(BUILD)verilated -f $(<F)
 
 # Compile all of our CPP test files and link them with verilated code and
@@ -68,10 +71,12 @@ test: $(TEST_TARGET)
 
 $(TEST_TARGET): $(VERILATED_LIBS) $(TEST_OBJECTS) $(VERILATOR_OBJECTS) $(BIN)
 	@$(CXX) -o $(TEST_TARGET) $(TEST_OBJECTS) $(VERILATOR_OBJECTS) $(VERILATED_LIB_FLAGS) -L$(BUILD)verilated
+	@echo "[LINK] $<"
 
 $(BUILD)tests/%.o: $(TEST_SRC)%.cpp $(BUILD)
 	@mkdir -p $(BUILD)$(<D)
-	@$(CXX) $(CFLAGS) -I$(TEST_SRC) -I$(BUILD)verilated -I/usr/share/verilator/include -MMD -c $< -o $@
+	@$(CXX) $(CFLAGS) -I$(TEST_SRC) -I$(BUILD)verilated -I$(VERILATOR_INCLUDE) -MMD -c $< -o $@
+	@echo "[CXX]  $<"
 
 $(BUILD):
 	@mkdir -p $@tests
