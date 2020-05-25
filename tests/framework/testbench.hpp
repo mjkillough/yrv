@@ -19,6 +19,10 @@ public:
         vcd->open(name.c_str());
     }
 
+    void eval() {
+       module->eval();
+    }
+
     void tick(size_t num = 1) {
         tick_while(num, [](){});
     }
@@ -37,7 +41,7 @@ public:
             module->clk = 1;
             module->eval();
             dump(10 * tick_count);
-            
+
             tick_count++;
             module->clk = 0;
             module->eval();
