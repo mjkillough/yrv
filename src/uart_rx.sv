@@ -37,10 +37,7 @@ module uart_rx#(
     .CLOCK_HZ(CLOCK_HZ),
     .BAUD_RATE(BAUD_RATE)
   ) baud(
-    .resetn(resetn),
-    .clk(clk),
-    .half(half),
-    .tick(tick)
+    .*
   );
 
   // Synchronise rx to srx to avoid meta-stabilty.
