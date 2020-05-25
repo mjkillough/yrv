@@ -33,7 +33,7 @@ module top(
     .clk(CLOCK_50),
     .rx(UART_RXD),
     .ready(ready),
-    .data(data),
+    .data(data)
   );
   uart_tx#(
     .CLOCK_HZ(50000000),
@@ -46,5 +46,5 @@ module top(
     .data(data),
     .busy(LEDR[1])
   );
-  
+
 endmodule
