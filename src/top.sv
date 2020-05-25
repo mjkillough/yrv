@@ -1,7 +1,7 @@
 module top(
   input CLOCK_50,
-  input  [17:0] SW,
-  input  /*[3:0]*/ KEY,
+  input  /*[17:0]*/ SW,
+  /*input  [3:0] KEY,*/
   output /*[17:0]*/ [2:0] LEDR,
   output [6:0] HEX0, HEX1 /*, HEX2, HEX3*/,
 

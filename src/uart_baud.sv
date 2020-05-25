@@ -1,6 +1,6 @@
 module uart_baud#(
-  parameter CLOCK_HZ = 50000000,
-  parameter BAUD_RATE = 115200
+  parameter CLOCK_HZ = 10,
+  parameter BAUD_RATE = 1
 )(
   input resetn,
   input clk,
