@@ -43,7 +43,7 @@ TEST_CASE("uart_baud") {
             tb.tick();
             clock_count++;
         }
-        REQUIRE(clock_count == (clocks_per_baud / 2)- 1);
+        REQUIRE(clock_count == (clocks_per_baud / 2) - 1);
 
         REQUIRE(tb.module->tick == 1);
         tb.tick();

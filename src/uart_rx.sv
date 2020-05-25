@@ -43,13 +43,20 @@ module uart_rx#(
     .tick(tick)
   );
 
+  // Synchronise rx to srx to avoid meta-stabilty.
+  reg brx, srx;
+  always_ff @(posedge clk) begin
+    brx <= rx;
+    srx <= brx;
+  end
+
   always_ff @(posedge clk, negedge resetn) begin
     if (!resetn) state <= STATE_IDLE;
     else case (state)
       STATE_IDLE: begin
         ready <= 1'b0;
 
-        if (rx == 1'b0)
+        if (srx == 1'b0)
           state <= STATE_START;
       end
 
@@ -57,7 +64,7 @@ module uart_rx#(
         if (tick) begin
           // If the start bit is still 0, start counting for data.
           // Otherwise, give up.
-          if (rx == 1'b0)
+          if (srx == 1'b0)
             state <= STATE_DATA;
           else
             state <= STATE_IDLE;
@@ -66,7 +73,7 @@ module uart_rx#(
 
       STATE_DATA: begin
         if (tick) begin
-          data[bit_count] <= rx;
+          data[bit_count] <= srx;
 
           if (bit_count < 7)
             bit_count <= bit_count + 1'b1;

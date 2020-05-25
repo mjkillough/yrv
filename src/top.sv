@@ -26,25 +26,25 @@ module top(
   );
 
   uart_rx#(
-    .CLOCK_HZ(15000000),
+    .CLOCK_HZ(50000000),
     .BAUD_RATE(115200)
   ) rx(
     .resetn(resetn),
     .clk(CLOCK_50),
     .rx(UART_RXD),
     .ready(ready),
-    .data(data)
+    .data(data),
   );
-  // uart_tx#(
-  //   .CLOCK_HZ(15000000),
-  //   .BAUD_RATE(115200)
-  // ) tx(
-  //   .resetn(resetn),
-  //   .clk(CLOCK_50),
-  //   .tx(UART_TXD),
-  //   .write(ready),
-  //   .data(data),
-  //   .busy(LEDR[1])
-  // );
+  uart_tx#(
+    .CLOCK_HZ(50000000),
+    .BAUD_RATE(115200)
+  ) tx(
+    .resetn(resetn),
+    .clk(CLOCK_50),
+    .tx(UART_TXD),
+    .write(ready),
+    .data(data),
+    .busy(LEDR[1])
+  );
   
 endmodule
