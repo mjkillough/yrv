@@ -15,12 +15,12 @@ module regfile(
 
   reg [63:0] regs [0:31];
 
-  assign rs1_data = rs1_addr == 5'h0 ? 64'h0 ? regs[rs1_addr]
-  assign rs2_data = rs2_addr == 5'h0 ? 64'h0 ? regs[rs2_addr]
+  assign rs1_data = rs1_addr == 5'h0 ? 64'h0 : regs[rs1_addr];
+  assign rs2_data = rs2_addr == 5'h0 ? 64'h0 : regs[rs2_addr];
 
   always_ff @(posedge clk)
     if (write_enable)
       if (rd_addr != 5'h0)
-        regs[rd_addr] <= rd_data
+        regs[rd_addr] <= rd_data;
 
 endmodule
