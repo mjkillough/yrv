@@ -44,7 +44,7 @@ $(BUILD)%.o: $(VERILATOR_INCLUDE)%.cpp
 # Verilate each .sv separately and compile to a static library.
 
 VERILATED_MK := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%.mk,$(SRCS))
-VERILATED_LIBS := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%_ALL.a,$(SRCS))
+VERILATED_LIBS := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%__ALL.a,$(SRCS))
 VERILATED_LIB_FLAGS := $(patsubst $(SRC)%.sv,-l:V%__ALL.a,$(SRCS))
 
 verilate: $(VERILATED_LIBS) $(VERILATED_MK)
@@ -53,7 +53,7 @@ $(BUILD)verilated/V%.mk: $(SRC)%.sv $(BUILD)
 	@verilator -Wall -Wno-VARHIDDEN --trace --Mdir $(BUILD)verilated -I$(SRC) --cc $< 
 	@echo "[V]    $<"
 
-$(BUILD)verilated/V%_ALL.a: $(BUILD)verilated/V%.mk
+$(BUILD)verilated/V%__ALL.a: $(BUILD)verilated/V%.mk
 	@echo "[MK]   $(<F)"
 	@$(MAKE) -s -C $(BUILD)verilated -f $(<F)
 
