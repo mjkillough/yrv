@@ -33,8 +33,12 @@ module cpu(
 
   /* verilator lint_on UNUSED */
 
-  always_ff @(posedge clk)
-    $display("rs1=%d rs2=%d rd=%d rs1_data=%d rs2_data=%d rd_data=%d imm=%d", rs1, rs2, rd, rs1_data, rs2_data, rd_data, imm);
+  /* always_ff @(posedge clk) begin */
+  /*   $display("instr=%b", instr); */
+  /*   $display("in1=%d in2=%d out=%d", in1, in2, out); */
+
+  /*   $display("rs1=%d rs2=%d rd=%d rs1_data=%d rs2_data=%d rd_data=%d imm=%d", rs1, rs2, rd, rs1_data, rs2_data, rd_data, imm); */
+  /* end */
 
 endmodule
 
