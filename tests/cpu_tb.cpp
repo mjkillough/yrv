@@ -25,13 +25,13 @@ TEST_CASE("cpu") {
     tb.module->instr = instr_i(10, 1, 0, 1, 0b0010011);
 
     tb.tick();
-    REQUIRE(tb.module->cpu__DOT__rd_data == 10);
+    REQUIRE(tb.module->cpu__DOT__rs1_data == 10);
     tb.tick();
-    REQUIRE(tb.module->cpu__DOT__rd_data == 20);
+    REQUIRE(tb.module->cpu__DOT__rs1_data == 20);
     tb.tick();
-    REQUIRE(tb.module->cpu__DOT__rd_data == 30);
+    REQUIRE(tb.module->cpu__DOT__rs1_data == 30);
     tb.tick();
-    REQUIRE(tb.module->cpu__DOT__rd_data == 40);
+    REQUIRE(tb.module->cpu__DOT__rs1_data == 40);
 
     tb.finish();
 }

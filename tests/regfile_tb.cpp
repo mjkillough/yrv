@@ -13,8 +13,8 @@ TEST_CASE("regfile") {
 
     SECTION("zero register") {
         INFO("read");
-        tb.module->rs1_addr = 0;
-        tb.module->rs2_addr = 0;
+        tb.module->rs1 = 0;
+        tb.module->rs2 = 0;
         tb.tick();
 
         REQUIRE(tb.module->rs1_data == 0);
@@ -22,7 +22,7 @@ TEST_CASE("regfile") {
 
         INFO("write");
         tb.module->rd_write = 1;
-        tb.module->rd_addr = 0;
+        tb.module->rd = 0;
         tb.module->rd_data = 1;
         tb.tick();
         tb.module->rd_write = 0;
@@ -39,14 +39,14 @@ TEST_CASE("regfile") {
 
             INFO("write r" << +i << "=" << data);
             tb.module->rd_write = 1;
-            tb.module->rd_addr = i;
+            tb.module->rd = i;
             tb.module->rd_data = data;
             tb.tick();
             tb.module->rd_write = 0;
 
             INFO("read r" << +i);
-            tb.module->rs1_addr = i;
-            tb.module->rs2_addr = i;
+            tb.module->rs1 = i;
+            tb.module->rs2 = i;
             tb.tick();
 
             REQUIRE(tb.module->rs1_data == data);
@@ -60,18 +60,18 @@ TEST_CASE("regfile") {
 
         INFO("write r1=" << data1);
         tb.module->rd_write = 1;
-        tb.module->rd_addr = 1;
+        tb.module->rd = 1;
         tb.module->rd_data = data1;
         tb.tick();
         INFO("write r2=" << data2);
-        tb.module->rd_addr = 2;
+        tb.module->rd = 2;
         tb.module->rd_data = data2;
         tb.tick();
         tb.module->rd_write = 0;
 
         INFO("read r1, r2");
-        tb.module->rs1_addr = 1;
-        tb.module->rs2_addr = 2;
+        tb.module->rs1 = 1;
+        tb.module->rs2 = 2;
         tb.tick();
 
         REQUIRE(tb.module->rs1_data == data1);

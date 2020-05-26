@@ -6,32 +6,29 @@ module decode(
   input logic [31:0] instr,
 
   input logic rd_write,
-  // Need to think about unique name for this.
-  input logic [4:0] rd,
+  inout logic [4:0] rd,
   input logic [63:0] rd_data,
 
   output control_t control,
 
-  // Rename rs1_addr etc. to rs1?
-  output logic [4:0] rs1_addr,
-  output logic [4:0] rs2_addr,
-  output logic [4:0] rd_addr,
+  output logic [4:0] rs1,
+  output logic [4:0] rs2,
   output logic [63:0] rs1_data,
   output logic [63:0] rs2_data,
 
   output logic [63:0] imm
 );
 
-  regfile regs(.rd_addr(rd), .*);
+  regfile regs(.*);
 
   // decode_immediate?
   immediate_decoder imm_decoder(.*);
 
   // decode_alu?
 
-  assign rs1_addr = instr[19:15];
-  assign rs2_addr = instr[24:20];
-  assign rd_addr  = instr[11:7];
+  assign rs1 = instr[19:15];
+  assign rs2 = instr[24:20];
+  assign rd  = instr[11:7];
 
   logic [6:0] opcode = instr[6:0];
   logic [2:0] func3  = instr[14:12];
