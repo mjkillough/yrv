@@ -4,7 +4,7 @@
 # compile:
 # 	@sbt 'runMain yrv.Yrv --target-dir verilog/generated'
 
-assemble: 
+assemble:
 	@quartus_map quartus/yrv
 	@quartus_fit quartus/yrv
 	@quartus_asm quartus/yrv
@@ -12,7 +12,7 @@ assemble:
 program: assemble
 	@quartus_pgm -z --mode=JTAG --operation="p;quartus/output_files/yrv.sof"
 
-# verilator -Wall --trace -CFLAGS -std=c++17 --cc src/uart_receiver.sv --exe testbench.cc 
+# verilator -Wall --trace -CFLAGS -std=c++17 --cc src/uart_receiver.sv --exe testbench.cc
 # cd obj_dir/
 # make -f Vuart_receiver.mk
 # ./Vuart_receiver
@@ -34,6 +34,7 @@ SRCS := $(wildcard $(SRC)*.sv) $(wildcard $(SRC)**/*.sv)
 
 VERILATOR_INCLUDE = /usr/local/share/verilator/include/
 VERILATOR_RAW_SRCS = verilated.cpp verilated_vcd_c.cpp
+VERILATOR_FLAGS = -Wall -Wno-VARHIDDEN --trace --Mdir $(BUILD)verilated -I$(SRC)
 VERILATOR_SRCS := $(addprefix $(VERILATOR_INCLUDE)/,$(VERILATOR_RAW_SRCS))
 VERILATOR_OBJECTS := $(addprefix $(BUILD),$(subst .cpp,.o,$(VERILATOR_RAW_SRCS)))
 
@@ -42,15 +43,20 @@ $(BUILD)%.o: $(VERILATOR_INCLUDE)%.cpp
 	@$(CXX) $(CFLAGS) -c $< -o $@
 
 # Verilate each .sv separately and compile to a static library.
+# Don't verilate VERILATED_PKGS - these will be added to every verilator
+# command, as they're packages included by other modules.
 
-VERILATED_MK := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%.mk,$(SRCS))
-VERILATED_LIBS := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%__ALL.a,$(SRCS))
-VERILATED_LIB_FLAGS := $(patsubst $(SRC)%.sv,-l:V%__ALL.a,$(SRCS))
+VERILATED_PKGS = src/types.sv
+VERILATED_SRCS := $(filter-out $(VERILATED_PKGS), $(SRCS))
+VERILATED_MK := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%.mk,$(VERILATED_SRCS))
+VERILATED_LIBS := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%__ALL.a,$(VERILATED_SRCS))
+VERILATED_LIB_FLAGS := $(patsubst $(SRC)%.sv,-l:V%__ALL.a,$(VERILATED_SRCS))
 
 verilate: $(VERILATED_LIBS) $(VERILATED_MK)
 
 $(BUILD)verilated/V%.mk: $(SRC)%.sv $(BUILD)
-	@verilator -Wall -Wno-VARHIDDEN --trace --Mdir $(BUILD)verilated -I$(SRC) --cc $< 
+	@mkdir -p $(BUILD)$(<D)
+	@verilator $(VERILATOR_FLAGS) --cc $(VERILATED_PKGS) $< --top-module $(*F)
 	@echo "[V]    $<"
 
 $(BUILD)verilated/V%__ALL.a: $(BUILD)verilated/V%.mk

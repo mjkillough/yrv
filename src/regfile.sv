@@ -1,14 +1,14 @@
 module regfile(
   input clk,
 
-  // Read
+  // read
   input [4:0] rs1_addr,
   input [4:0] rs2_addr,
   output [63:0] rs1_data,
   output [63:0] rs2_data,
 
-  // Write
-  input write_enable,
+  // write
+  input rd_write,
   input [4:0] rd_addr,
   input [63:0] rd_data
 );
@@ -19,7 +19,7 @@ module regfile(
   assign rs2_data = rs2_addr == 5'h0 ? 64'h0 : regs[rs2_addr];
 
   always_ff @(posedge clk)
-    if (write_enable)
+    if (rd_write)
       if (rd_addr != 5'h0)
         regs[rd_addr] <= rd_data;
 
