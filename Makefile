@@ -12,12 +12,6 @@ assemble:
 program: assemble
 	@quartus_pgm -z --mode=JTAG --operation="p;quartus/output_files/yrv.sof"
 
-# verilator -Wall --trace -CFLAGS -std=c++17 --cc src/uart_receiver.sv --exe testbench.cc
-# cd obj_dir/
-# make -f Vuart_receiver.mk
-# ./Vuart_receiver
-# cd ..
-
 CXX = clang++
 CFLAGS = -std=c++17
 
