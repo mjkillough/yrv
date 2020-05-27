@@ -39,7 +39,21 @@ module decode(
 
   logic op = opcode == OPCODE_OP;
   logic op_imm = opcode == OPCODE_OP_IMM;
-  // logic branch = opcode == OPCODE_BRANCH;
+  logic branch = opcode == OPCODE_BRANCH;
+
+  always_comb
+    if (!branch)
+      control.branch = BRANCH_NONE;
+    else
+      case (funct3)
+        `FUNCT3_BEQ:  control.branch = BRANCH_TRUE;
+        `FUNCT3_BNE:  control.branch = BRANCH_FALSE;
+        `FUNCT3_BLT:  control.branch = BRANCH_TRUE;
+        `FUNCT3_BGE:  control.branch = BRANCH_FALSE;
+        `FUNCT3_BLTU: control.branch = BRANCH_TRUE;
+        `FUNCT3_BGEU: control.branch = BRANCH_FALSE;
+        default:      control.branch = BRANCH_NONE;
+      endcase
 
   assign control.use_imm  = op_imm;
   assign control.rd_write = op || op_imm;

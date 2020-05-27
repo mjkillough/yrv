@@ -41,10 +41,17 @@ package types;
     ALU_FUNC_SLTU
   } alu_func_t;
 
+  typedef enum {
+    BRANCH_NONE,
+    BRANCH_TRUE,
+    BRANCH_FALSE
+  } branch_t;
+
   typedef struct packed {
     bit use_imm;
     bit rd_write;
     alu_func_t alu_func;
+    branch_t branch;
   } control_t;
 
 endpackage
