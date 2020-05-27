@@ -50,10 +50,32 @@ uint32_t instr_b(uint16_t imm, uint8_t rs2, uint8_t rs1, uint8_t func3, uint8_t 
         (opcode & 0x7F);
 }
 
+static
+uint32_t instr_j(uint32_t imm, uint8_t rd, uint8_t opcode) {
+    // 21 bit immediate is split into 4, ignoring lower bit.
+    // 0 0000 0000 0000 0000 0000
+    // 1 0000 0000 0000 0000 0000 = 0x100000
+    // 0 0000 0000 0111 1111 1110 = 0x0007FE
+    // 0 0000 0000 1000 0000 0000 = 0x000800
+    // 0 1111 1111 0000 0000 0000 = 0x0FF000
+    auto imm1 = (imm & 0x100000) >> 20;
+    auto imm2 = (imm & 0x0007FE) >> 1;
+    auto imm3 = (imm & 0x000800) >> 11;
+    auto imm4 = (imm & 0x0FF000) >> 12;
+
+    return (imm1 << 31) |
+      (imm2 << 21) |
+      (imm3 << 20) |
+      (imm4 << 12) |
+      ((rd & 0x1f) << 7) |
+      (opcode & 0x7F);
+}
+
 TEST_CASE("cpu") {
     Testbench<Vcpu> tb;
 
     auto regs = tb.module->cpu__DOT__decode__DOT__regs__DOT__regs;
+    auto &pc = tb.module->cpu__DOT__pc;
 
     SECTION("addi") {
         // addi x1, x1, 10
@@ -94,7 +116,30 @@ TEST_CASE("cpu") {
 
         tb.tick();
 
-        REQUIRE(tb.module->cpu__DOT__pc == 10);
+        REQUIRE(pc == 10);
+    }
+
+    SECTION("jal") {
+        // jal x1, 100
+
+        tb.module->instr = instr_j(100, 1, 0b1101111);
+
+        tb.tick();
+
+        REQUIRE(pc == 100);
+        REQUIRE(regs[1] == 4);
+    }
+
+    SECTION("jalr") {
+        // jalr x1, x2, 101
+
+        tb.module->instr = instr_i(101, 2, 0, 1, 0b1100111);
+        regs[2] = 5;
+
+        tb.tick();
+
+        REQUIRE(pc == 106);
+        REQUIRE(regs[1] == 4);
     }
 
     tb.finish();

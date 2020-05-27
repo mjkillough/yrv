@@ -37,14 +37,14 @@ module decode(
   assign rs2 = instr[24:20];
   assign rd  = instr[11:7];
 
-  logic op = opcode == OPCODE_OP;
+  // logic op = opcode == OPCODE_OP;
   logic op_imm = opcode == OPCODE_OP_IMM;
   logic branch = opcode == OPCODE_BRANCH;
+  logic jal = opcode == OPCODE_JAL;
+  logic jalr = opcode == OPCODE_JALR;
 
   always_comb
-    if (!branch)
-      control.branch = BRANCH_NONE;
-    else
+    if (branch)
       case (funct3)
         `FUNCT3_BEQ:  control.branch = BRANCH_TRUE;
         `FUNCT3_BNE:  control.branch = BRANCH_FALSE;
@@ -54,9 +54,23 @@ module decode(
         `FUNCT3_BGEU: control.branch = BRANCH_FALSE;
         default:      control.branch = BRANCH_NONE;
       endcase
+    else if (jal)
+      control.branch = BRANCH_ALWAYS;
+    else if (jalr)
+      control.branch = BRANCH_INDIRECT;
+    else
+      control.branch = BRANCH_NONE;
 
-  assign control.use_imm  = op_imm;
-  assign control.rd_write = op || op_imm;
+  always_comb
+    case (opcode)
+      OPCODE_OP:     control.writeback = WRITEBACK_ALU;
+      OPCODE_OP_IMM: control.writeback = WRITEBACK_ALU;
+      OPCODE_JAL:    control.writeback = WRITEBACK_PC;
+      OPCODE_JALR:   control.writeback = WRITEBACK_PC;
+      default:       control.writeback = WRITEBACK_NONE;
+    endcase
+
+  assign control.use_imm = op_imm || jal || jalr;
 
 endmodule
 

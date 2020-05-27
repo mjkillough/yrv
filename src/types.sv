@@ -17,9 +17,12 @@
 package types;
 
   typedef enum [6:0] {
-    OPCODE_OP_IMM = 7'b0010011,
-    OPCODE_OP     = 7'b0110011,
-    OPCODE_BRANCH = 7'b1100011
+    OPCODE_OP_IMM   = 7'b0010011,
+    OPCODE_OP_IMM32 = 7'b0011011,
+    OPCODE_OP       = 7'b0110011,
+    OPCODE_BRANCH   = 7'b1100011,
+    OPCODE_JALR     = 7'b1100111,
+    OPCODE_JAL      = 7'b1101111
   } opcode_t;
 
   typedef enum {
@@ -42,16 +45,32 @@ package types;
   } alu_func_t;
 
   typedef enum {
+    // Don't branch.
     BRANCH_NONE,
+    // Relative branch if ALU result is non-zero.
     BRANCH_TRUE,
-    BRANCH_FALSE
+    // Relative branch if ALU result is zero.
+    BRANCH_FALSE,
+    // Relative branch (JAL) always.
+    BRANCH_ALWAYS,
+    // Indirect branch (JALR) always.
+    BRANCH_INDIRECT
   } branch_t;
+
+  typedef enum {
+    // Don't write anything to the register file.
+    WRITEBACK_NONE,
+    // Write the result of the ALU operation.
+    WRITEBACK_ALU,
+    // Write the next PC.
+    WRITEBACK_PC
+  } writeback_t;
 
   typedef struct packed {
     bit use_imm;
-    bit rd_write;
     alu_func_t alu_func;
     branch_t branch;
+    writeback_t writeback;
   } control_t;
 
 endpackage

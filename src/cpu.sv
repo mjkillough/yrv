@@ -35,11 +35,25 @@ module cpu(
       pc <= imm;
     else if (control.branch == BRANCH_FALSE && out == 64'b0)
       pc <= imm;
+    else if (control.branch == BRANCH_ALWAYS)
+      pc <= imm;
+    else if (control.branch == BRANCH_INDIRECT)
+      pc <= {out[63:1], 1'b0};
     else
       pc <= pc + 64'h4;
 
-  assign rd_write = control.rd_write;
-  assign rd_data = out;
+  always_comb
+    case (control.writeback)
+      WRITEBACK_NONE: rd_write = 1'b0;
+      WRITEBACK_ALU: begin
+        rd_write = 1'b1;
+        rd_data = out;
+      end
+      WRITEBACK_PC: begin
+        rd_write = 1'b1;
+        rd_data = pc + 4;
+      end
+    endcase
 
   /* verilator lint_on UNUSED */
 

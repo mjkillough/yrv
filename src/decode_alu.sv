@@ -10,6 +10,7 @@ module decode_alu(
   logic op = opcode == OPCODE_OP;
   logic op_imm = opcode == OPCODE_OP_IMM;
   logic branch = opcode == OPCODE_BRANCH;
+  logic jalr = opcode == OPCODE_JALR;
 
   always_comb
     if (op || op_imm)
@@ -44,6 +45,9 @@ module decode_alu(
         `FUNCT3_BGEU: func = ALU_FUNC_SLTU;
         default:      func = ALU_FUNC_UNKNOWN;
       endcase
+
+    else if (jalr)
+      func = ALU_FUNC_ADD;
 
   wire _verilator_unused_ok = &{
     1'b0,
