@@ -28,7 +28,6 @@ SRCS := $(wildcard $(SRC)*.sv) $(wildcard $(SRC)**/*.sv)
 
 VERILATOR_INCLUDE = /usr/local/share/verilator/include/
 VERILATOR_RAW_SRCS = verilated.cpp verilated_vcd_c.cpp
-VERILATOR_FLAGS = -Wall -Wno-VARHIDDEN --trace --Mdir $(BUILD)verilated -I$(SRC)
 VERILATOR_SRCS := $(addprefix $(VERILATOR_INCLUDE)/,$(VERILATOR_RAW_SRCS))
 VERILATOR_OBJECTS := $(addprefix $(BUILD),$(subst .cpp,.o,$(VERILATOR_RAW_SRCS)))
 
@@ -40,15 +39,20 @@ $(BUILD)%.o: $(VERILATOR_INCLUDE)%.cpp
 # Don't verilate VERILATED_PKGS - these will be added to every verilator
 # command, as they're packages included by other modules.
 
+VERILATOR_FLAGS = -Wall -Wno-VARHIDDEN --trace --Mdir $(BUILD)verilated -I$(SRC) -MMD
+
 VERILATED_PKGS = src/types.sv
 VERILATED_SRCS := $(filter-out $(VERILATED_PKGS), $(SRCS))
 VERILATED_MK := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%.mk,$(VERILATED_SRCS))
 VERILATED_LIBS := $(patsubst $(SRC)%.sv,$(BUILD)verilated/V%__ALL.a,$(VERILATED_SRCS))
 VERILATED_LIB_FLAGS := $(patsubst $(SRC)%.sv,-l:V%__ALL.a,$(VERILATED_SRCS))
+VERILATED_DEPS := $(wildcard $(BUILD)verilated/*.d)
+
+-include $(VERILATED_DEPS)
 
 verilate: $(VERILATED_LIBS) $(VERILATED_MK)
 
-$(BUILD)verilated/V%.mk: $(SRC)%.sv $(BUILD)
+$(BUILD)verilated/V%.mk: $(SRC)%.sv
 	@mkdir -p $(BUILD)$(<D)
 	@verilator $(VERILATOR_FLAGS) --cc $(VERILATED_PKGS) $< --top-module $(*F)
 	@echo "[V]    $<"
@@ -73,7 +77,7 @@ $(TEST_TARGET): $(VERILATED_LIBS) $(TEST_OBJECTS) $(VERILATOR_OBJECTS) $(BIN)
 	@$(CXX) -o $(TEST_TARGET) $(TEST_OBJECTS) $(VERILATOR_OBJECTS) $(VERILATED_LIB_FLAGS) -L$(BUILD)verilated
 	@echo "[LINK] $<"
 
-$(BUILD)tests/%.o: $(TEST_SRC)%.cpp $(BUILD)
+$(BUILD)tests/%.o: $(TEST_SRC)%.cpp
 	@mkdir -p $(BUILD)$(<D)
 	@$(CXX) $(CFLAGS) -I$(TEST_SRC) -I$(BUILD)verilated -I$(VERILATOR_INCLUDE) -MMD -c $< -o $@
 	@echo "[CXX]  $<"
